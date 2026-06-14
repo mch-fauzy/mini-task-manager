@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowSyntheticDefaultImports": true,
+    // noEmit keeps `tsc -b` type-check only. Do not switch to composite: it forces
+    // emit and drops a stray vite.config.js next to the source.
+    "noEmit": true,
+    "strict": true
+  },
+  "include": ["vite.config.ts"]
+}
