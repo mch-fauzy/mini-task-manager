@@ -2,13 +2,14 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { config } from '../../config';
+import { AuditLog } from './entities/audit-log.entity';
 import { Task } from './entities/task.entity';
 
 /**
- * Entities registered with TypeORM. Reused by the in-memory test DataSource so
- * the test schema matches production.
+ * Entities registered with TypeORM. Exported and reused by the in-memory test
+ * DataSource so the test schema matches production.
  */
-const ENTITIES = [Task];
+export const ENTITIES = [Task, AuditLog];
 
 /**
  * App DataSource (file-backed SQLite). synchronize is off so schema changes go

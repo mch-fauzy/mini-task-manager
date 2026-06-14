@@ -4,6 +4,7 @@ import { PaginationUtil } from '../../../shared/utils/pagination.util';
 import { ITaskCreateV1Request } from '../dtos/requests/task-create-v1.request';
 import { ITaskIdParamV1Request } from '../dtos/requests/task-id-param-v1.request';
 import { ITaskListV1Request } from '../dtos/requests/task-list-v1.request';
+import { ITaskUpdateStatusV1Request } from '../dtos/requests/task-update-status-v1.request';
 import { TaskV1Response } from '../dtos/responses/task-v1.response';
 import { TaskV1Service } from '../services/task-v1.service';
 
@@ -25,6 +26,16 @@ export class TaskV1Controller {
         const { items, total } = await this.service.list(query);
         const meta = PaginationUtil.buildMeta(total, query.page, query.perPage);
         res.success(TaskV1Response.MapEntities(items), SuccessMessageConstant.TasksRetrieved, 200, meta);
+    };
+
+    updateStatus = async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.validatedParams as ITaskIdParamV1Request;
+        const { toStatus, actorId } = req.validatedBody as ITaskUpdateStatusV1Request;
+        const { task, changed } = await this.service.updateStatus(id, toStatus, actorId);
+        const message = changed
+            ? SuccessMessageConstant.TaskStatusUpdated
+            : SuccessMessageConstant.TaskStatusUnchanged;
+        res.success(TaskV1Response.MapEntity(task), message, 200);
     };
 
     delete = async (req: Request, res: Response): Promise<void> => {

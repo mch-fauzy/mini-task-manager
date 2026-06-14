@@ -62,6 +62,89 @@ describe('Task CRUD API', () => {
         expect(res.body.data.map((t: { title: string }) => t.title)).toEqual(['Prepare Invoice']);
     });
 
+    it('advances a task status from a snake_case body and returns the updated task', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const id = created.body.data.id;
+
+        const res = await request(app)
+            .put(`/api/v1/tasks/${id}/status`)
+            .send({ to_status: 'pending', actor_id: 'john.doe' });
+
+        expect(res.status).toBe(200);
+        expect(res.body.message).toBe('Task status updated successfully.');
+        expect(res.body.data).toMatchObject({ status: 'pending', status_label: 'Pending' });
+    });
+
+    it('treats setting the current status as an idempotent no-op', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const id = created.body.data.id;
+
+        const res = await request(app)
+            .put(`/api/v1/tasks/${id}/status`)
+            .send({ to_status: 'to_do', actor_id: 'john.doe' });
+
+        expect(res.status).toBe(200);
+        expect(res.body.message).toBe('Task status unchanged.');
+        expect(res.body.data.status).toBe('to_do');
+    });
+
+    it('rejects an out-of-order status change with 400', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const id = created.body.data.id;
+
+        const res = await request(app)
+            .put(`/api/v1/tasks/${id}/status`)
+            .send({ to_status: 'done', actor_id: 'john.doe' });
+
+        expect(res.status).toBe(400);
+        expect(res.body.message).toContain('Invalid status transition');
+    });
+
+    it('rejects an unknown actor with 400', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const id = created.body.data.id;
+
+        const res = await request(app)
+            .put(`/api/v1/tasks/${id}/status`)
+            .send({ to_status: 'pending', actor_id: 'ghost' });
+
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe('Unknown actor.');
+    });
+
+    it('rejects an unknown to_status value with 400 validation errors', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const id = created.body.data.id;
+
+        const res = await request(app)
+            .put(`/api/v1/tasks/${id}/status`)
+            .send({ to_status: 'archived', actor_id: 'john.doe' });
+
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe('Validation Error');
+    });
+
+    it('rejects an over-long actor_id with 400 validation errors', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const id = created.body.data.id;
+
+        const res = await request(app)
+            .put(`/api/v1/tasks/${id}/status`)
+            .send({ to_status: 'pending', actor_id: 'x'.repeat(256) });
+
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe('Validation Error');
+    });
+
+    it('returns 404 when updating the status of a missing task', async () => {
+        const res = await request(app)
+            .put('/api/v1/tasks/00000000-0000-0000-0000-000000000000/status')
+            .send({ to_status: 'pending', actor_id: 'john.doe' });
+
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe('Task not found.');
+    });
+
     it('returns 404 when deleting a missing task', async () => {
         const res = await request(app).delete('/api/v1/tasks/00000000-0000-0000-0000-000000000000');
         expect(res.status).toBe(404);

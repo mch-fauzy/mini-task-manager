@@ -1,6 +1,8 @@
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { Task } from '../../../infrastructures/databases/entities/task.entity';
 import { IPaginateResult } from '../../../shared/interfaces/paginate.interface';
+import { scopedRepository } from '../../../shared/utils/repository.util';
+import { TaskStatus } from '../constants/task-status.constant';
 import { ITaskListV1Request } from '../dtos/requests/task-list-v1.request';
 
 /** Maps API sort keys to entity property names. */
@@ -26,8 +28,20 @@ export class TaskV1Repository {
         return this.repo.save(this.repo.create({ title }));
     }
 
-    async findById(id: string): Promise<Task | null> {
-        return this.repo.findOne({ where: { id } });
+    /** Finds a non-deleted task by id. Pass a queryRunner to read inside a transaction. */
+    async findById(id: string, queryRunner?: QueryRunner): Promise<Task | null> {
+        return scopedRepository(this.repo, queryRunner).findOne({ where: { id } });
+    }
+
+    /**
+     * Sets a task's status and returns the updated row. The queryRunner is required
+     * because this only runs as part of the status-change transaction, alongside the
+     * audit insert. The row is re-read so the response carries the fresh updatedAt.
+     */
+    async updateStatus(id: string, status: TaskStatus, queryRunner: QueryRunner): Promise<Task> {
+        const repo = scopedRepository(this.repo, queryRunner);
+        await repo.update(id, { status });
+        return repo.findOneOrFail({ where: { id } });
     }
 
     async paginate(query: ITaskListV1Request): Promise<IPaginateResult<Task>> {
