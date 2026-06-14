@@ -1,4 +1,4 @@
-import { TASK_STATUS_VALUES, TaskStatus } from '../constants/task-status.constant';
+import { TASK_STATUS_VALUES, TaskStatus } from '../../../shared/constants/task-status.constant';
 
 /**
  * Returns the status immediately after `current` in the fixed order, or null when

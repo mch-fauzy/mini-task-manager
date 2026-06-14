@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { SuccessMessageConstant } from '../../../shared/constants/success-message.constant';
 import { PaginationUtil } from '../../../shared/utils/pagination.util';
+import { AuditLogV1Response } from '../../audit-log/dtos/responses/audit-log-v1.response';
 import { ITaskCreateV1Request } from '../dtos/requests/task-create-v1.request';
 import { ITaskIdParamV1Request } from '../dtos/requests/task-id-param-v1.request';
 import { ITaskListV1Request } from '../dtos/requests/task-list-v1.request';
@@ -42,5 +43,15 @@ export class TaskV1Controller {
         const { id } = req.validatedParams as ITaskIdParamV1Request;
         await this.service.delete(id);
         res.success(null, SuccessMessageConstant.TaskDeleted, 200);
+    };
+
+    listAuditLogs = async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.validatedParams as ITaskIdParamV1Request;
+        const logs = await this.service.listAuditLogs(id);
+        res.success(
+            AuditLogV1Response.MapEntities(logs),
+            SuccessMessageConstant.AuditLogsRetrieved,
+            200,
+        );
     };
 }

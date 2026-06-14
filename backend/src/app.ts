@@ -6,6 +6,7 @@ import { config } from './config';
 import { requestLogger } from './infrastructures/middlewares/request-logger.middleware';
 import { responseMiddleware } from './infrastructures/middlewares/response.middleware';
 import { unknownRouteHandler } from './infrastructures/middlewares/unknown-route.middleware';
+import { createActorRouter } from './modules/actor/actor.module';
 import { createHealthRouter } from './modules/health/health.module';
 import { createTaskRouter } from './modules/task/task.module';
 import { errorFilter } from './shared/filters/error.filter';
@@ -25,6 +26,7 @@ export function createApp(dataSource: DataSource): Express {
     app.use(responseMiddleware);
 
     app.use('/api/v1/health', createHealthRouter());
+    app.use('/api/v1/actors', createActorRouter());
     app.use('/api/v1/tasks', createTaskRouter(dataSource));
 
     app.use(unknownRouteHandler);

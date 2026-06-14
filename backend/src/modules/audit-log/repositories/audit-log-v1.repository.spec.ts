@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DataSource } from 'typeorm';
 import { createTestDataSource } from '../../../test/test-data-source';
-import { TaskStatusConstant } from '../../task/constants/task-status.constant';
+import { TaskStatusConstant } from '../../../shared/constants/task-status.constant';
 import { AuditLogV1Repository } from './audit-log-v1.repository';
 
 describe('AuditLogV1Repository', () => {

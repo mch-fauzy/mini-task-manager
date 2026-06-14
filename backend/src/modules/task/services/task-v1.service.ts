@@ -1,6 +1,8 @@
 import { DataSource } from 'typeorm';
+import { AuditLog } from '../../../infrastructures/databases/entities/audit-log.entity';
 import { Task } from '../../../infrastructures/databases/entities/task.entity';
 import { ErrorMessageConstant } from '../../../shared/constants/error-message.constant';
+import { TaskStatus } from '../../../shared/constants/task-status.constant';
 import {
     BadRequestException,
     NotFoundException,
@@ -9,7 +11,6 @@ import { IPaginateResult } from '../../../shared/interfaces/paginate.interface';
 import { TransactionUtil } from '../../../shared/utils/transaction.util';
 import { findActorById } from '../../actor/utils/actor.util';
 import { AuditLogV1Repository } from '../../audit-log/repositories/audit-log-v1.repository';
-import { TaskStatus } from '../constants/task-status.constant';
 import { ITaskListV1Request } from '../dtos/requests/task-list-v1.request';
 import { TaskV1Repository } from '../repositories/task-v1.repository';
 import { isValidTransition } from '../utils/task-status.util';
@@ -83,5 +84,15 @@ export class TaskV1Service {
             );
             return { task: updated, changed: true };
         });
+    }
+
+    /**
+     * Returns a task status-change history oldest-first.
+     */
+    async listAuditLogs(taskId: string): Promise<AuditLog[]> {
+        if (!(await this.taskRepository.existsById(taskId))) {
+            throw new NotFoundException(ErrorMessageConstant.TaskNotFound);
+        }
+        return this.auditLogRepository.findByTaskId(taskId);
     }
 }

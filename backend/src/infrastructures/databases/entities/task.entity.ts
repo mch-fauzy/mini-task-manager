@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
+import { TaskStatus, TaskStatusConstant } from '../../../shared/constants/task-status.constant';
 import { BaseEntity } from './base.entity';
-import { TaskStatus, TaskStatusConstant } from '../../../modules/task/constants/task-status.constant';
 
 /**
  * A task. `status` is stored as a plain varchar so adding a new

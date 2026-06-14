@@ -1,5 +1,5 @@
 import { Task } from '../../../../infrastructures/databases/entities/task.entity';
-import { TaskStatus, TaskStatusLabelConstant } from '../../constants/task-status.constant';
+import { TaskStatus, TaskStatusLabelConstant } from '../../../../shared/constants/task-status.constant';
 
 export interface ITaskV1Response {
     id: string;

@@ -27,5 +27,10 @@ export function createTaskRouter(dataSource: DataSource): Router {
         controller.updateStatus,
     );
     router.delete('/:id', validate(TaskIdParamV1Schema, 'params'), controller.delete);
+    router.get(
+        '/:id/audit-logs',
+        validate(TaskIdParamV1Schema, 'params'),
+        controller.listAuditLogs,
+    );
     return router;
 }

@@ -150,4 +150,59 @@ describe('Task CRUD API', () => {
         expect(res.status).toBe(404);
         expect(res.body.message).toBe('Task not found.');
     });
+
+    it('returns a task audit log chronologically with snake_case fields and labels', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const id = created.body.data.id;
+        await request(app).put(`/api/v1/tasks/${id}/status`).send({ to_status: 'pending', actor_id: 'john.doe' });
+        await request(app).put(`/api/v1/tasks/${id}/status`).send({ to_status: 'in_progress', actor_id: 'jane.roe' });
+
+        const res = await request(app).get(`/api/v1/tasks/${id}/audit-logs`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.message).toBe('Audit logs retrieved successfully.');
+        expect(res.body.data).toHaveLength(2);
+        expect(res.body.data[0]).toMatchObject({
+            task_id: id,
+            actor_name: 'John Doe',
+            from_status: 'to_do',
+            to_status: 'pending',
+            to_status_label: 'Pending',
+        });
+        expect(res.body.data[1]).toMatchObject({
+            actor_name: 'Jane Roe',
+            from_status: 'pending',
+            to_status: 'in_progress',
+        });
+    });
+
+    it('returns an empty audit log for a task with no status changes', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const res = await request(app).get(`/api/v1/tasks/${created.body.data.id}/audit-logs`);
+        expect(res.status).toBe(200);
+        expect(res.body.data).toEqual([]);
+    });
+
+    it('returns 404 for the audit-logs of a soft-deleted task (it leaves the tasks resource)', async () => {
+        const created = await request(app).post('/api/v1/tasks').send({ title: 'A' });
+        const id = created.body.data.id;
+        await request(app).put(`/api/v1/tasks/${id}/status`).send({ to_status: 'pending', actor_id: 'john.doe' });
+        await request(app).delete(`/api/v1/tasks/${id}`).expect(200);
+
+        const res = await request(app).get(`/api/v1/tasks/${id}/audit-logs`);
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe('Task not found.');
+    });
+
+    it('returns 404 for the audit-logs of a missing task', async () => {
+        const res = await request(app).get('/api/v1/tasks/00000000-0000-0000-0000-000000000000/audit-logs');
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe('Task not found.');
+    });
+
+    it('rejects an invalid task id in the audit-log route with 400', async () => {
+        const res = await request(app).get('/api/v1/tasks/not-a-uuid/audit-logs');
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe('Validation Error');
+    });
 });

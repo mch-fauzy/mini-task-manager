@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TaskV1Response } from './task-v1.response';
 import { Task } from '../../../../infrastructures/databases/entities/task.entity';
-import { TaskStatusConstant } from '../../constants/task-status.constant';
+import { TaskStatusConstant } from '../../../../shared/constants/task-status.constant';
 
 describe('TaskV1Response.MapEntity', () => {
     it('exposes id/title/status/status_label/timestamps and nulls absent dates', () => {

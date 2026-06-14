@@ -1,8 +1,8 @@
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { Task } from '../../../infrastructures/databases/entities/task.entity';
+import { TaskStatus } from '../../../shared/constants/task-status.constant';
 import { IPaginateResult } from '../../../shared/interfaces/paginate.interface';
 import { scopedRepository } from '../../../shared/utils/repository.util';
-import { TaskStatus } from '../constants/task-status.constant';
 import { ITaskListV1Request } from '../dtos/requests/task-list-v1.request';
 
 /** Maps API sort keys to entity property names. */
@@ -31,6 +31,11 @@ export class TaskV1Repository {
     /** Finds a non-deleted task by id. Pass a queryRunner to read inside a transaction. */
     async findById(id: string, queryRunner?: QueryRunner): Promise<Task | null> {
         return scopedRepository(this.repo, queryRunner).findOne({ where: { id } });
+    }
+
+    /** True when a non-deleted task with this id exists. Soft-deleted rows count as absent. */
+    async existsById(id: string): Promise<boolean> {
+        return this.repo.exists({ where: { id } });
     }
 
     /**

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TaskStatusConstant } from '../constants/task-status.constant';
+import { TaskStatusConstant } from '../../../shared/constants/task-status.constant';
 import { isValidTransition } from './task-status.util';
 
 describe('task-status state machine', () => {

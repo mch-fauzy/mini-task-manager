@@ -7,7 +7,7 @@ import {
     AuditLogV1Repository,
     ICreateAuditLogParams,
 } from '../../audit-log/repositories/audit-log-v1.repository';
-import { TaskStatusConstant } from '../constants/task-status.constant';
+import { TaskStatusConstant } from '../../../shared/constants/task-status.constant';
 import { TaskV1Repository } from '../repositories/task-v1.repository';
 import { TaskV1Service } from './task-v1.service';
 
@@ -149,6 +149,40 @@ describe('TaskV1Service', () => {
             // Both writes must be undone: status unchanged and no audit row persisted.
             expect(await readStatus(task.id)).toBe(TaskStatusConstant.ToDo);
             expect(await countLogs()).toBe(0);
+        });
+    });
+
+    describe('listAuditLogs', () => {
+        it('returns the task status history oldest-first', async () => {
+            const task = await service.create('A');
+            await service.updateStatus(task.id, TaskStatusConstant.Pending, 'john.doe');
+            await service.updateStatus(task.id, TaskStatusConstant.InProgress, 'jane.roe');
+
+            const logs = await service.listAuditLogs(task.id);
+
+            expect(logs).toHaveLength(2);
+            expect(logs[0].toStatus).toBe(TaskStatusConstant.Pending);
+            expect(logs[1].toStatus).toBe(TaskStatusConstant.InProgress);
+        });
+
+        it('returns an empty list for a task with no status changes', async () => {
+            const task = await service.create('A');
+
+            expect(await service.listAuditLogs(task.id)).toEqual([]);
+        });
+
+        it('throws NotFound for a soft-deleted task', async () => {
+            const task = await service.create('A');
+            await service.updateStatus(task.id, TaskStatusConstant.Pending, 'john.doe');
+            await service.delete(task.id);
+
+            await expect(service.listAuditLogs(task.id)).rejects.toThrow('Task not found.');
+        });
+
+        it('throws NotFound for an unknown task', async () => {
+            await expect(
+                service.listAuditLogs('00000000-0000-0000-0000-000000000000'),
+            ).rejects.toThrow('Task not found.');
         });
     });
 });

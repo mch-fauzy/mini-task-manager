@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DataSource } from 'typeorm';
 import { createTestDataSource } from '../../../test/test-data-source';
 import { TaskV1Repository } from './task-v1.repository';
-import { TaskStatusConstant } from '../constants/task-status.constant';
+import { TaskStatusConstant } from '../../../shared/constants/task-status.constant';
 
 describe('TaskV1Repository', () => {
     let dataSource: DataSource;

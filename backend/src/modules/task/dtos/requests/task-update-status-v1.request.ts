@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TASK_STATUS_VALUES } from '../../constants/task-status.constant';
+import { TASK_STATUS_VALUES } from '../../../../shared/constants/task-status.constant';
 
 /**
  * Status-change body. Validates only the shape: the target is a known status and the

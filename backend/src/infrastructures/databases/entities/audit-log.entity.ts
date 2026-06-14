@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-import { TaskStatus } from '../../../modules/task/constants/task-status.constant';
+import { TaskStatus } from '../../../shared/constants/task-status.constant';
 
 /**
  * Append-only record of one effective task status change. Deliberately does NOT
