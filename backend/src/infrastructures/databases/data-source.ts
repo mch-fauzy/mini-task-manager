@@ -8,7 +8,7 @@ import { Task } from './entities/task.entity';
  * Entities registered with TypeORM. Reused by the in-memory test DataSource so
  * the test schema matches production.
  */
-export const ENTITIES = [Task];
+const ENTITIES = [Task];
 
 /**
  * App DataSource (file-backed SQLite). synchronize is off so schema changes go
