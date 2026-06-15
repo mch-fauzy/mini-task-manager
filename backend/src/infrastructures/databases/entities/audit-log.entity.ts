@@ -7,6 +7,9 @@ import { TaskStatus } from '../../../shared/constants/task-status.constant';
  * exposes no update/delete methods, so a logged change can never be altered.
  * actorName is denormalized (snapshot at write time) so history still renders the
  * name even if the hardcoded actor list later changes.
+ *
+ * Append-only is also enforced in the database by triggers (TypeORM cannot declare them
+ * on an entity): see ../triggers/audit-log-immutable.trigger.ts.
  */
 @Entity({ name: 'audit_logs' })
 export class AuditLog {
