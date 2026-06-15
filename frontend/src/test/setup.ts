@@ -16,6 +16,20 @@ Object.defineProperty(window, 'matchMedia', {
     }),
 });
 
+// jsdom throws "Not implemented" when getComputedStyle is given a pseudo-element,
+// which AntD's scrollbar measurement does (Modal). Delegate the normal case to
+// jsdom and return an empty declaration for pseudo-element queries.
+const realGetComputedStyle = window.getComputedStyle.bind(window);
+window.getComputedStyle = function getComputedStyleStub(
+    element: Element,
+    pseudoElement?: string | null,
+): CSSStyleDeclaration {
+    if (pseudoElement) {
+        return { width: '', height: '', getPropertyValue: () => '' } as unknown as CSSStyleDeclaration;
+    }
+    return realGetComputedStyle(element);
+};
+
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
