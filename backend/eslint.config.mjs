@@ -7,7 +7,7 @@ export default tseslint.config(
     ...tseslint.configs.recommended,
     {
         rules: {
-            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-explicit-any': 'error',
             '@typescript-eslint/explicit-function-return-type': 'off',
             'no-console': 'warn',
             // Allow intentionally-unused, underscore-prefixed args (e.g. the 4th
