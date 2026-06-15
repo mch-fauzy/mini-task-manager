@@ -121,6 +121,8 @@ paginated lists. Errors return a clear `message`.
   ahead or going back is rejected. I read "must follow the order" as one step at a time. If
   the reviewer expects forward skips to be allowed, it is a one line change in the rule plus
   its tests.
+- **The audit log records status changes only.** It does not record task creation, deletion,
+  or title edits, only a move from one status to another.
 - **Delete is a soft delete.** The task is hidden from the list but the row stays, so its
   history is still valid and viewable. The history is never touched by a delete.
 - **People are a fixed list.** There is no login. The selected person is required only when
@@ -146,6 +148,8 @@ paginated lists. Errors return a clear `message`.
 - **Real accounts.** Replace the fixed list of people with user accounts and login, and record
   changes against the logged in user.
 - **Better lists.** Add filtering, sorting, and faster search for large numbers of tasks.
+- **A fuller audit trail.** Log creation and deletion too, not just status changes. This means
+  adding an event type and an actor on those actions, so the history tells the whole story of a task.
 
 ## Design answers
 
