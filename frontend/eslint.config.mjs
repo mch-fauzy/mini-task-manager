@@ -1,3 +1,4 @@
+import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 // Flat ESLint config. Naming discipline mirrors the backend for cross-workspace
@@ -6,8 +7,16 @@ export default tseslint.config(
     { ignores: ['dist', 'node_modules', 'coverage'] },
     ...tseslint.configs.recommended,
     {
+        // React hooks correctness: rules-of-hooks and exhaustive deps.
+        plugins: { 'react-hooks': reactHooks },
         rules: {
-            '@typescript-eslint/no-explicit-any': 'off',
+            'react-hooks/rules-of-hooks': 'error',
+            'react-hooks/exhaustive-deps': 'warn',
+        },
+    },
+    {
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'error',
             '@typescript-eslint/explicit-function-return-type': 'off',
             'no-console': 'warn',
             '@typescript-eslint/no-unused-vars': [
